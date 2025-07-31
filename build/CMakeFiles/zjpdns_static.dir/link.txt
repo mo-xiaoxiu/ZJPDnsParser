@@ -1,0 +1,2 @@
+/usr/bin/ar qc libzjpdns.a CMakeFiles/zjpdns_static.dir/src/dns_parser.cpp.o CMakeFiles/zjpdns_static.dir/src/dns_packet.cpp.o CMakeFiles/zjpdns_static.dir/src/dns_resolver.cpp.o CMakeFiles/zjpdns_static.dir/src/async_resolver.cpp.o
+/usr/bin/ranlib libzjpdns.a
