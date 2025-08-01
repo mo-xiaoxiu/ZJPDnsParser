@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/dns_test.dir/dns_test.cpp.o -o dns_test  -Wl,-rpath,/home/zjp/augment/ZJPDnsParser/build ../libzjpdns.so.1.0.0 

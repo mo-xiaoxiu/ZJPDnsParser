@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/dns_example.dir/examples/dns_example.cpp.o -o dns_example  -Wl,-rpath,/home/zjp/augment/ZJPDnsParser/build libzjpdns.so.1.0.0 
