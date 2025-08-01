@@ -42,21 +42,6 @@ std::future<DnsResult> AsyncDnsResolverImpl::resolveWithPacketAsync(const DnsPac
     return future;
 }
 
-// std::future<DnsResult> AsyncDnsResolverImpl::resolveWithGethostbynameAsync(const std::string& domain) {
-//     std::promise<DnsResult> promise;
-//     std::future<DnsResult> future = promise.get_future();
-    
-//     Task task;
-//     task.domain = domain;
-//     task.type = DnsRecordType::A;
-//     task.method = ResolveMethod::GETHOSTBYNAME;
-//     task.use_custom_packet = false;
-//     task.promise = std::move(promise);
-    
-//     addTask(std::move(task));
-//     return future;
-// }
-
 void AsyncDnsResolverImpl::resolveWithCallback(const std::string& domain,
                                              std::function<void(const DnsResult&)> callback,
                                              DnsRecordType type,

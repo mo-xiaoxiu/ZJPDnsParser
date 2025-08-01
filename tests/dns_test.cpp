@@ -9,7 +9,7 @@
 using namespace zjpdns;
 
 void testDnsPacketBuilder() {
-    std::cout << "测试DNS数据包构建器..." << std::endl;
+    std::cout << "test DNS packet builder..." << std::endl;
     
     // 测试域名编码解码
     std::string test_domain = "www.example.com";
@@ -25,11 +25,11 @@ void testDnsPacketBuilder() {
                                                         12345);
     assert(packet_data.size() > 0);
     
-    std::cout << "DNS数据包构建器测试通过!" << std::endl;
+    std::cout << "DNS packet builder test passed!" << std::endl;
 }
 
 void testDnsResolver() {
-    std::cout << "测试DNS解析器..." << std::endl;
+    std::cout << "test DNS resolver..." << std::endl;
     
     auto resolver = zjpdns::createDnsResolver();
     resolver->setDnsServer("8.8.8.8", 53);
@@ -57,11 +57,11 @@ void testDnsResolver() {
     // 无效域名应该解析失败
     assert(!result3.success);
     
-    std::cout << "DNS解析器测试通过!" << std::endl;
+    std::cout << "DNS resolver test passed!" << std::endl;
 }
 
 void testAsyncDnsResolver() {
-    std::cout << "测试异步DNS解析器..." << std::endl;
+    std::cout << "test async DNS resolver..." << std::endl;
     
     auto async_resolver = zjpdns::createAsyncDnsResolver();
     async_resolver->setDnsServer("8.8.8.8", 53);
@@ -114,11 +114,11 @@ void testAsyncDnsResolver() {
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     assert(packet_callback_called);
     
-    std::cout << "异步DNS解析器测试通过!" << std::endl;
+    std::cout << "async DNS resolver test passed!" << std::endl;
 }
 
 void testCustomPacket() {
-    std::cout << "测试自定义DNS数据包..." << std::endl;
+    std::cout << "test custom DNS packet..." << std::endl;
     
     auto resolver = zjpdns::createDnsResolver();
     resolver->setDnsServer("8.8.8.8", 53);
@@ -136,11 +136,11 @@ void testCustomPacket() {
         assert(result.domains[0] == "www.example.com.");
     }
     
-    std::cout << "自定义DNS数据包测试通过!" << std::endl;
+    std::cout << "custom DNS packet test passed!" << std::endl;
 }
 
 void testMultiDomainPacket() {
-    std::cout << "测试多域名数据包..." << std::endl;
+    std::cout << "test multi-domain packet..." << std::endl;
     
     auto resolver = zjpdns::createDnsResolver();
     resolver->setDnsServer("8.8.8.8", 53);
@@ -161,11 +161,11 @@ void testMultiDomainPacket() {
         assert(result.domains.size() >= 1);
     }
     
-    std::cout << "多域名数据包测试通过!" << std::endl;
+    std::cout << "multi-domain packet test passed!" << std::endl;
 }
 
 int main() {
-    std::cout << "开始DNS解析器单元测试..." << std::endl;
+    std::cout << "start DNS resolver unit test..." << std::endl;
     
     try {
         testDnsPacketBuilder();
@@ -174,10 +174,10 @@ int main() {
         testCustomPacket();
         testMultiDomainPacket();
         
-        std::cout << "所有测试通过!" << std::endl;
+        std::cout << "all tests passed!" << std::endl;
         return 0;
     } catch (const std::exception& e) {
-        std::cerr << "测试失败: " << e.what() << std::endl;
+        std::cerr << "test failed: " << e.what() << std::endl;
         return 1;
     }
 } 

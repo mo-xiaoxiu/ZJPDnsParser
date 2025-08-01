@@ -5,9 +5,9 @@
 #include <thread>
 
 void printResult(const zjpdns::DnsResult& result) {
-    std::cout << "查询域名: ";
+    std::cout << "query domain: ";
     if (result.domains.empty()) {
-        std::cout << "无";
+        std::cout << "no domain";
     } else {
         for (size_t i = 0; i < result.domains.size(); ++i) {
             if (i > 0) std::cout << ", ";
@@ -15,32 +15,32 @@ void printResult(const zjpdns::DnsResult& result) {
         }
     }
     std::cout << std::endl;
-    std::cout << "解析成功: " << (result.success ? "是" : "否") << std::endl;
+    std::cout << "resolve success: " << (result.success ? "yes" : "no") << std::endl;
     
     if (!result.success) {
-        std::cout << "错误信息: " << result.error_message << std::endl;
+        std::cout << "error message: " << result.error_message << std::endl;
         return;
     }
     
-    std::cout << "IP地址:" << std::endl;
+    std::cout << "IP addresses:" << std::endl;
     for (const auto& addr : result.addresses) {
         std::cout << "  " << addr << std::endl;
     }
     
-    std::cout << "DNS记录:" << std::endl;
+    std::cout << "DNS records:" << std::endl;
     for (const auto& record : result.records) {
-        std::cout << "  名称: " << record.name << std::endl;
-        std::cout << "  类型: " << static_cast<int>(record.type) << std::endl;
-        std::cout << "  类: " << static_cast<int>(record.class_) << std::endl;
+        std::cout << "  name: " << record.name << std::endl;
+        std::cout << "  type: " << static_cast<int>(record.type) << std::endl;
+        std::cout << "  class: " << static_cast<int>(record.class_) << std::endl;
         std::cout << "  TTL: " << record.ttl << std::endl;
-        std::cout << "  数据长度: " << record.data.length() << std::endl;
+        std::cout << "  data length: " << record.data.length() << std::endl;
         std::cout << "  ---" << std::endl;
     }
     std::cout << std::endl;
 }
 
 int main() {
-    std::cout << "=== ZJP DNS解析器示例 ===" << std::endl;
+    std::cout << "=== ZJP DNS parser example ===" << std::endl;
     
     // 创建同步解析器
     auto resolver = zjpdns::createDnsResolver();
@@ -56,25 +56,25 @@ int main() {
     };
     
     // 测试同步解析
-    std::cout << "=== 同步解析测试 ===" << std::endl;
+    std::cout << "=== sync resolve test ===" << std::endl;
     for (const auto& domain : domains) {
-        std::cout << "解析域名: " << domain << std::endl;
+        std::cout << "resolve domain: " << domain << std::endl;
         
         // 使用gethostbyname方式
         auto result1 = resolver->resolve(domain, zjpdns::DnsRecordType::A, 
                                        zjpdns::ResolveMethod::GETHOSTBYNAME);
-        std::cout << "gethostbyname方式:" << std::endl;
+        std::cout << "gethostbyname method:" << std::endl;
         printResult(result1);
         
         // 使用DNS数据包方式
         auto result2 = resolver->resolve(domain, zjpdns::DnsRecordType::A, 
                                        zjpdns::ResolveMethod::DNS_PACKET);
-        std::cout << "DNS数据包方式:" << std::endl;
+        std::cout << "DNS packet method:" << std::endl;
         printResult(result2);
     }
     
     // 测试自定义DNS数据包
-    std::cout << "=== 自定义DNS数据包测试 ===" << std::endl;
+    std::cout << "=== custom DNS packet test ===" << std::endl;
     zjpdns::DnsPacket custom_packet;
     custom_packet.id = 12345;
     custom_packet.flags = 0x0100; // 标准查询
@@ -82,18 +82,18 @@ int main() {
     custom_packet.questions.push_back("www.example.com");
     
     auto result3 = resolver->resolveWithPacket(custom_packet);
-    std::cout << "自定义数据包解析:" << std::endl;
+    std::cout << "custom DNS packet resolve:" << std::endl;
     printResult(result3);
     
     // 测试异步解析
-    std::cout << "=== 异步解析测试 ===" << std::endl;
+    std::cout << "=== async resolve test ===" << std::endl;
     auto async_resolver = zjpdns::createAsyncDnsResolver();
     async_resolver->setDnsServer("8.8.8.8", 53);
     async_resolver->setTimeout(5000);
     
     std::vector<std::future<zjpdns::DnsResult>> futures;
     
-    // 启动多个异步解析
+    // 异步解析 使用默认DNS数据包方式
     for (const auto& domain : domains) {
         auto future = async_resolver->resolveAsync(domain, zjpdns::DnsRecordType::A, 
                                                  zjpdns::ResolveMethod::DNS_PACKET);
@@ -103,37 +103,45 @@ int main() {
     // 等待所有解析完成
     for (size_t i = 0; i < futures.size(); ++i) {
         auto result = futures[i].get();
-        std::cout << "异步解析 " << domains[i] << ":" << std::endl;
+        std::cout << "async resolve " << domains[i] << ":" << std::endl;
         printResult(result);
     }
 
+    // 测试gethostbyname异步解析
+    std::cout << "=== gethostbyname async resolve test ===" << std::endl;
+    auto gethostbyname_future = async_resolver->resolveAsync("www.google.com", zjpdns::DnsRecordType::A,
+                                                            zjpdns::ResolveMethod::GETHOSTBYNAME);
+    auto gethostbyname_result = gethostbyname_future.get();
+    std::cout << "gethostbyname async resolve result:" << std::endl;
+    printResult(gethostbyname_result);
+
     // 测试自定义数据包异步解析
-    std::cout << "=== 自定义数据包异步解析测试 ===" << std::endl;
+    std::cout << "=== custom DNS packet async resolve test ===" << std::endl;
     auto custom_packet_future = async_resolver->resolveWithPacketAsync(custom_packet);
     auto custom_packet_result = custom_packet_future.get();
-    std::cout << "自定义数据包异步解析结果:" << std::endl;
+    std::cout << "custom DNS packet async resolve result:" << std::endl;
     printResult(custom_packet_result);
 
-    // 测试回调式异步解析
-    std::cout << "=== 回调式异步解析测试 ===" << std::endl;
+    // 测试默认DNS数据包回调式异步解析
+    std::cout << "=== callback async resolve test ===" << std::endl;
     std::atomic<int> completed_count{0};
     int total_count = domains.size();
     
     for (const auto& domain : domains) {
         async_resolver->resolveWithCallback(domain, 
             [&completed_count, total_count](const zjpdns::DnsResult& result) {
-                std::cout << "回调解析完成: ";
+                std::cout << "callback async resolve completed: ";
                 if (!result.domains.empty()) {
                     std::cout << result.domains[0];
                 } else {
-                    std::cout << "无域名";
+                    std::cout << "no domain";
                 }
                 std::cout << std::endl;
                 printResult(result);
                 completed_count++;
                 
                 if (completed_count >= total_count) {
-                    std::cout << "所有回调解析完成!" << std::endl;
+                    std::cout << "all callback async resolve completed!" << std::endl;
                 }
             },
             zjpdns::DnsRecordType::A,
@@ -145,22 +153,24 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
+    // 测试gethostbyname回调式异步解析
+    std::cout << "=== gethostbyname callback async resolve test ===" << std::endl;
     completed_count.store(0);
     for (const auto& domain : domains) {
         async_resolver->resolveWithCallback(domain, 
             [&completed_count, total_count](const zjpdns::DnsResult& result) {
-                std::cout << "回调解析完成: ";
+                std::cout << "callback async resolve completed: ";
                 if (!result.domains.empty()) {
                     std::cout << result.domains[0];
                 } else {
-                    std::cout << "无域名";
+                    std::cout << "no domain";
                 }
                 std::cout << std::endl;
                 printResult(result);
                 completed_count++;
                 
                 if (completed_count >= total_count) {
-                    std::cout << "所有回调解析完成!" << std::endl;
+                    std::cout << "all callback async resolve completed!" << std::endl;
                 }
             },
             zjpdns::DnsRecordType::A,
@@ -171,16 +181,8 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    // 测试gethostbyname异步解析
-    std::cout << "测试gethostbyname异步解析:" << std::endl;
-    auto gethostbyname_future = async_resolver->resolveAsync("www.google.com", zjpdns::DnsRecordType::A,
-                                                            zjpdns::ResolveMethod::GETHOSTBYNAME);
-    auto gethostbyname_result = gethostbyname_future.get();
-    std::cout << "gethostbyname异步解析结果:" << std::endl;
-    printResult(gethostbyname_result);
-    
     // 测试自定义数据包回调式异步解析
-    std::cout << "测试自定义数据包回调式异步解析:" << std::endl;
+    std::cout << "=== test custom DNS packet callback async resolve ===" << std::endl;
     zjpdns::DnsPacket custom_packet2;
     custom_packet2.id = 54321;
     custom_packet2.flags = 0x0100; // 标准查询
@@ -190,11 +192,11 @@ int main() {
     std::atomic<bool> packet_callback_called{false};
     async_resolver->resolveWithPacketCallback(custom_packet2,
         [&packet_callback_called](const zjpdns::DnsResult& result) {
-            std::cout << "自定义数据包回调解析完成: ";
+            std::cout << "custom DNS packet callback async resolve completed: ";
             if (!result.domains.empty()) {
                 std::cout << result.domains[0];
             } else {
-                std::cout << "无域名";
+                std::cout << "no domain";
             }
             std::cout << std::endl;
             printResult(result);
@@ -206,6 +208,6 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    std::cout << "=== 测试完成 ===" << std::endl;
+    std::cout << "=== test completed ===" << std::endl;
     return 0;
 } 

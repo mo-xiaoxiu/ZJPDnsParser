@@ -24,9 +24,6 @@ public:
     // 使用自定义DNS数据包异步解析
     std::future<DnsResult> resolveWithPacketAsync(const DnsPacket& packet) override;
     
-    // 使用gethostbyname异步解析
-    // std::future<DnsResult> resolveWithGethostbynameAsync(const std::string& domain);
-    
     // 使用自定义DNS数据包异步解析（回调方式）
     void resolveWithPacketCallback(const DnsPacket& packet,
                                   std::function<void(const DnsResult&)> callback) override;
