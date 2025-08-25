@@ -115,9 +115,9 @@ void AsyncDnsResolverImpl::workerThread() {
         }
         
         // 对于自定义数据包任务，不需要检查domain是否为空
-        if (!task.use_custom_packet && task.domain.empty()) {
-            continue;
-        }
+        // if (!task.use_custom_packet && task.domain.empty()) {
+        //     continue;
+        // }
         
         executeTask(task);
     }
